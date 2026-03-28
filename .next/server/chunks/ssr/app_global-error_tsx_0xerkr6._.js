@@ -1,0 +1,3 @@
+module.exports=[3171,a=>{"use strict";var b=a.i(87924);a.s(["default",0,function({error:a,reset:c}){return(0,b.jsx)("html",{lang:"ru",children:(0,b.jsxs)("body",{children:[(0,b.jsx)("h2",{children:"Произошла ошибка"}),(0,b.jsx)("p",{children:a.message}),(0,b.jsx)("button",{type:"button",onClick:()=>c(),children:"Попробовать снова"})]})})}])}];
+
+//# sourceMappingURL=app_global-error_tsx_0xerkr6._.js.map
