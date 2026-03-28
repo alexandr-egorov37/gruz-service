@@ -15,19 +15,8 @@ export function RequestForm() {
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          section.classList.add("animate-in", "fade-in", "slide-in-from-bottom-4")
-          section.style.animationDuration = "0.6s"
-          section.style.animationFillMode = "both"
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.1 }
-    )
-    observer.observe(section)
-    return () => observer.disconnect()
+    section.style.opacity = "1"
+    section.style.transform = "none"
   }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -35,21 +24,17 @@ export function RequestForm() {
     setSubmitting(true)
     setSubmitError(null)
     try {
+      const { sendToTelegram } = await import("@/lib/telegram")
       const date = new Date().toLocaleDateString("ru-RU")
-      const res = await fetch("/api/send-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: name.trim(),
-          phone: phone.trim(),
-          comment: comment.trim(),
-          date,
-        }),
-      })
-      const json = await res.json().catch(() => null)
-      if (!res.ok) {
-        throw new Error(json?.error || "Не удалось отправить заявку")
-      }
+      
+      const message = `
+<b>🔔 Новый заказ!</b>
+<b>Имя:</b> ${name.trim()}
+<b>Телефон:</b> ${phone.trim()}
+<b>Комментарий:</b> ${comment.trim() || "-"}
+<b>Дата:</b> ${date}
+`
+      await sendToTelegram(message)
       setSubmitted(true)
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : "Ошибка отправки")

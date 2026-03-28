@@ -51,11 +51,11 @@ export function Footer() {
 
           {/* Phone */}
           <a
-            href="tel:+79001234567"
+            href="tel:+79203507778"
             className="flex items-center gap-2 text-sm font-semibold text-foreground transition-colors hover:text-primary"
           >
             <Phone className="h-4 w-4" />
-            +7 (900) 123-45-67
+            +7 (920) 350-77-78
           </a>
         </div>
 

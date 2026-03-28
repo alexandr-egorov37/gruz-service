@@ -39,12 +39,12 @@ export function StickyCta() {
           </p>
           <div className="flex items-center gap-3">
             <a
-              href="tel:+79001234567"
-              className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/50"
-            >
-              <Phone className="h-4 w-4" />
-              Позвонить
-            </a>
+               href="tel:+79203507778"
+               className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-primary/50"
+             >
+               <Phone className="h-4 w-4" />
+               Позвонить
+             </a>
             <button
               type="button"
               onClick={() => openQuickModal()}

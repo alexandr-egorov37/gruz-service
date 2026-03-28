@@ -68,68 +68,46 @@ export function QuickModalProvider({
     setSubmitting(true)
     setError(null)
     try {
+      const { sendToTelegram } = await import("@/lib/telegram")
       const phoneValue = phone.trim()
       const nameValue = name.trim()
 
-      const payload =
-        openSource === "calculator"
-          ? (() => {
-              try {
-                const raw = localStorage.getItem("calculatorState")
-                if (!raw) return null
-                const parsed = JSON.parse(raw) as Record<string, unknown>
-                const workType = parsed.workType
-                const workers = parsed.workers
-                const hours = parsed.hours
-                const dateValue = parsed.date
-                const outsideCity = parsed.outsideCity
-                const time = parsed.time as
-                  | { hour?: unknown; minute?: unknown }
-                  | undefined
-
-                const valid =
-                  typeof workType === "string" &&
-                  typeof workers === "number" &&
-                  typeof hours === "number" &&
-                  typeof dateValue === "string" &&
-                  typeof outsideCity === "boolean" &&
-                  time &&
-                  typeof time.hour === "string" &&
-                  typeof time.minute === "string"
-
-                if (!valid) return null
-
-                return {
-                  workType,
-                  workers,
-                  hours,
-                  date: dateValue,
-                  time: { hour: time.hour, minute: time.minute },
-                  outsideCity,
-                  phone: phoneValue,
-                }
-              } catch {
-                return null
-              }
-            })()
-          : { name: nameValue, phone: phoneValue, date }
-
-      if (!payload) {
-        // Fallback: if calculator state is missing/broken, send quick payload.
-        // This keeps the UX functional and avoids "no message" scenarios.
-        return submitQuickOrderFallback(phoneValue, nameValue, date)
+      let message = ""
+      
+      if (openSource === "calculator") {
+        try {
+          const raw = localStorage.getItem("calculatorState")
+          if (!raw) throw new Error("Нет данных калькулятора")
+          const p = JSON.parse(raw)
+          message = `
+<b>🧮 Заявка из калькулятора!</b>
+<b>Имя:</b> ${nameValue || "-"}
+<b>Телефон:</b> ${phoneValue}
+<b>Работа:</b> ${p.workType}
+<b>Грузчики:</b> ${p.workers}
+<b>Часы:</b> ${p.hours}
+<b>Дата:</b> ${p.date}
+<b>Время:</b> ${p.time?.hour}:${p.time?.minute}
+<b>За городом:</b> ${p.outsideCity ? "Да" : "Нет"}
+`
+        } catch {
+          message = `
+<b>⚡️ Быстрая заявка (Ошибка калькулятора)!</b>
+<b>Имя:</b> ${nameValue}
+<b>Телефон:</b> ${phoneValue}
+<b>Дата:</b> ${date}
+`
+        }
+      } else {
+        message = `
+<b>⚡️ Быстрая заявка!</b>
+<b>Имя:</b> ${nameValue}
+<b>Телефон:</b> ${phoneValue}
+<b>Дата:</b> ${date}
+`
       }
 
-      const res = await fetch("/api/send-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-
-      const json = await res.json().catch(() => null)
-      if (!res.ok) {
-        throw new Error(json?.error || "Не удалось отправить заявку")
-      }
+      await sendToTelegram(message)
 
       setIsQuickModalOpen(false)
       setName("")
@@ -141,29 +119,6 @@ export function QuickModalProvider({
     } finally {
       setSubmitting(false)
     }
-  }
-
-  async function submitQuickOrderFallback(
-    phoneValue: string,
-    nameValue: string,
-    dateValue: string
-  ) {
-    const res = await fetch("/api/send-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name: nameValue, phone: phoneValue, date: dateValue }),
-    })
-
-    const json = await res.json().catch(() => null)
-    if (!res.ok) {
-      throw new Error(json?.error || "Не удалось отправить заявку")
-    }
-
-    setIsQuickModalOpen(false)
-    setName("")
-    setPhone("")
-    setOpenSource("default")
-    setSuccessToast("Заявка отправлена")
   }
 
   return (
@@ -259,4 +214,3 @@ export function QuickModalProvider({
     </QuickModalContext.Provider>
   )
 }
-

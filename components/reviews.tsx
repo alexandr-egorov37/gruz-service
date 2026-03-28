@@ -110,23 +110,8 @@ export function Reviews() {
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          section.classList.add(
-            "animate-in",
-            "fade-in",
-            "slide-in-from-bottom-4"
-          )
-          section.style.animationDuration = "0.6s"
-          section.style.animationFillMode = "both"
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.1 }
-    )
-    observer.observe(section)
-    return () => observer.disconnect()
+    section.style.opacity = "1"
+    section.style.transform = "none"
   }, [])
 
   useEffect(() => {
@@ -140,26 +125,7 @@ export function Reviews() {
     }
   }, [])
 
-  useEffect(() => {
-    const loadFromApi = async () => {
-      try {
-        const res = await fetch("/api/reviews", { cache: "no-store" })
-        if (!res.ok) return
-        const json = (await res.json()) as { reviews?: Review[] }
-        if (!json?.reviews) return
-        // Server is the source of truth so delete/edit in admin appears on site.
-        setReviews(json.reviews)
-      } catch {
-        // ignore
-      }
-    }
-
-    loadFromApi()
-
-    // Keep block in sync while admin edits in another tab.
-    const timer = window.setInterval(loadFromApi, 8000)
-    return () => window.clearInterval(timer)
-  }, [])
+  // API fetching removed for static compatibility
 
   useEffect(() => {
     try {
@@ -200,17 +166,6 @@ export function Reviews() {
     return filtered.slice(start, start + PAGE_SIZE)
   }, [filtered, currentPage, PAGE_SIZE])
 
-  useEffect(() => {
-    // Temporary debug logs for diagnosing filters/source/encoding issues.
-    // eslint-disable-next-line no-console
-    console.log("reviews:", reviews)
-    // eslint-disable-next-line no-console
-    console.log("activeTab:", activeTab)
-    // eslint-disable-next-line no-console
-    console.log("filtered:", filtered)
-    console.log("page:", currentPage, "of", totalPages)
-  }, [reviews, activeTab, filtered, currentPage, totalPages])
-
   const stats = useMemo(() => {
     const all = reviews
     const avg =
@@ -240,34 +195,14 @@ export function Reviews() {
   async function submitReview() {
     setThanks(null)
     try {
-      const payload = {
-        name: name.trim(),
-        role: "Клиент",
-        text: text.trim(),
-        avatar: name.trim()?.[0]?.toUpperCase() || "?",
-        phone: phone.trim() || undefined,
-        rating,
-        source: "site",
-        isVerified: false,
-        createdAt: new Date().toISOString(),
-      }
-
-      const res = await fetch("/api/reviews", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-
-      const json = await res.json().catch(() => null)
-      if (!res.ok) throw new Error(json?.error || "Не удалось отправить отзыв")
-
-      const review = (json?.review ?? null) as Review | null
-      if (review) {
-        setReviews((prev) => {
-          if (prev.some((r) => r.id === review.id)) return prev
-          return [review, ...prev]
-        })
-      }
+      const { sendToTelegram } = await import("@/lib/telegram")
+      const message = `
+<b>📝 Новый отзыв с сайта!</b>
+<b>Имя:</b> ${name.trim()}
+<b>Рейтинг:</b> ${rating}
+<b>Текст:</b> ${text.trim()}
+`
+      await sendToTelegram(message)
 
       setThanks("Спасибо за отзыв!")
       setName("")

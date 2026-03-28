@@ -9,31 +9,15 @@ export function Contacts() {
   useEffect(() => {
     const section = sectionRef.current
     if (!section) return
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          section.classList.add("animate-in", "fade-in", "slide-in-from-bottom-4")
-          section.style.animationDuration = "0.6s"
-          section.style.animationFillMode = "both"
-          observer.disconnect()
-        }
-      },
-      { threshold: 0.1 }
-    )
-    observer.observe(section)
-    return () => observer.disconnect()
+    section.style.opacity = "1"
+    section.style.transform = "none"
   }, [])
 
   useEffect(() => {
     const el = cardRef.current
     if (!el) return
-    el.style.opacity = "0"
-    el.style.transform = "translateY(16px) scale(0.98)"
-    requestAnimationFrame(() => {
-      el.style.transition = "opacity 0.7s ease, transform 0.7s ease"
-      el.style.opacity = "1"
-      el.style.transform = "translateY(0px) scale(1)"
-    })
+    el.style.opacity = "1"
+    el.style.transform = "none"
   }, [])
 
   return (
