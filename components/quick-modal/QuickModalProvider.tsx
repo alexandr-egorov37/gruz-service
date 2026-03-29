@@ -109,7 +109,10 @@ export function QuickModalProvider({
 `
       }
 
-      await sendToTelegram(message)
+      const res = await sendToTelegram(message)
+      if (res && res.success === false) {
+        throw new Error(res.error || "Ошибка отправки в Telegram")
+      }
 
       setIsQuickModalOpen(false)
       setName("")

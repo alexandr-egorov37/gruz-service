@@ -19,12 +19,12 @@ export function SecurityCheck() {
     const last = localStorage.getItem("human_check_time")
     const now = Date.now()
 
-    if (last && now - parseInt(last, 10) < 60000) {
+    if (last && now - parseInt(last, 10) < 3600000) {
       return
     }
 
     setShow(true)
-    document.body.style.overflow = "hidden"
+    document.body.classList.add("modal-open")
 
     let interacted = false
     const registerInteraction = () => {
@@ -43,14 +43,14 @@ export function SecurityCheck() {
        } else {
          setStatus("suspicious")
        }
-    }, 1000)
+    }, 2500)
 
     return () => {
       clearTimeout(timer)
       window.removeEventListener("mousemove", registerInteraction)
       window.removeEventListener("scroll", registerInteraction)
       window.removeEventListener("touchstart", registerInteraction)
-      document.body.style.overflow = "auto"
+      document.body.classList.remove("modal-open")
     }
   }, [mounted])
 
@@ -58,7 +58,7 @@ export function SecurityCheck() {
     setHiding(true)
     setTimeout(() => {
       setShow(false)
-      document.body.style.overflow = "auto"
+      document.body.classList.remove("modal-open")
     }, 300)
   }
 

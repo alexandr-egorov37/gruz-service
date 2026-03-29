@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import { AnalyticsProvider } from '@/components/analytics'
 import { QuickModalProvider } from '@/components/quick-modal/QuickModalProvider'
 import { SecurityCheck } from '@/components/security-check'
+import { StickyCta } from '@/components/sticky-cta'
 import './globals.css'
 
 const inter = Inter({
@@ -52,6 +53,7 @@ export default function RootLayout({
         <QuickModalProvider>
           {children}
           <AnalyticsProvider />
+          <StickyCta />
         </QuickModalProvider>
       </body>
     </html>

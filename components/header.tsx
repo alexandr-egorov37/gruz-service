@@ -27,9 +27,9 @@ export function Header() {
 
   return (
     <header
-      className={`absolute md:fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 w-full transition-all duration-300 ${
         scrolled
-          ? "bg-background/95 border-b border-border"
+          ? "bg-background/95 border-b border-border shadow-md"
           : "bg-transparent"
       }`}
     >

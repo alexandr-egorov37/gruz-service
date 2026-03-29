@@ -249,7 +249,10 @@ export function Reviews() {
 Рейтинг: ${rating}
 Текст: ${text.trim()}
 `
-      await sendToTelegram(message).catch(console.error)
+      const res = await sendToTelegram(message)
+      if (res && res.success === false) {
+        throw new Error(res.error || "Ошибка отправки в Telegram")
+      }
 
       if (reviewStatus === "approved") {
         setReviews(prev => [{

@@ -34,7 +34,10 @@ export function RequestForm() {
 <b>Комментарий:</b> ${comment.trim() || "-"}
 <b>Дата:</b> ${date}
 `
-      await sendToTelegram(message)
+      const res = await sendToTelegram(message)
+      if (res && res.success === false) {
+        throw new Error(res.error || "Ошибка отправки в Telegram")
+      }
       setSubmitted(true)
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : "Ошибка отправки")
