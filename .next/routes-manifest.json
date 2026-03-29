@@ -46,6 +46,12 @@
       "regex": "^/admin(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/api/telegram",
+      "regex": "^/api/telegram(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/telegram(?:/)?$"
     }
   ],
   "dataRoutes": [],

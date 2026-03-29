@@ -43,11 +43,13 @@ export function QuickModalProvider({
   }
 
   useEffect(() => {
-    if (!isQuickModalOpen) return
-    const prevOverflow = document.body.style.overflow
-    document.body.style.overflow = "hidden"
+    if (!isQuickModalOpen) {
+      document.body.classList.remove("modal-open")
+      return
+    }
+    document.body.classList.add("modal-open")
     return () => {
-      document.body.style.overflow = prevOverflow || "auto"
+      document.body.classList.remove("modal-open")
     }
   }, [isQuickModalOpen])
 
@@ -127,7 +129,8 @@ export function QuickModalProvider({
 
       {isQuickModalOpen ? (
         <div
-          className="fixed inset-0 z-[2050] flex items-end md:items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-[2050] flex overflow-y-auto items-end md:items-center justify-center bg-black/70 p-4"
+          style={{ WebkitOverflowScrolling: "touch" }}
           role="dialog"
           aria-modal="true"
           onClick={() => setIsQuickModalOpen(false)}

@@ -34,19 +34,18 @@ export function CalculatorSection() {
     <section
       id="calculator"
       ref={sectionRef}
-      className="relative py-24 overflow-visible scroll-mt-28"
+      className="relative py-24 overflow-visible scroll-mt-28 z-50"
     >
-      {/* ФОНОВАЯ КАРТИНКА */}
+      {/* ФОН И ЗАТЕМНЕНИЕ В 1 СЛОЕ */}
       <div
-        className="absolute inset-0 z-0 bg-contain bg-no-repeat"
+        className="absolute inset-0 z-0 pointer-events-none"
         style={{
-          backgroundImage: "url('/images/hero-bg-3.png')",
+          backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.75), rgba(0,0,0,0.9)), url('/images/hero-bg-3.png')",
+          backgroundSize: "contain",
           backgroundPosition: "center 20%",
+          backgroundRepeat: "no-repeat",
         }}
       />
-
-      {/* ЗАТЕМНЕНИЕ */}
-      <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/85 via-black/75 to-black/90 pointer-events-none" />
 
       {/* КОНТЕНТ */}
       <div className="relative z-20">

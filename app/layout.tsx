@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import { AnalyticsProvider } from '@/components/analytics'
 import { QuickModalProvider } from '@/components/quick-modal/QuickModalProvider'
+import { SecurityCheck } from '@/components/security-check'
 import './globals.css'
 
 const inter = Inter({
@@ -47,6 +48,7 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className={`${inter.variable} font-sans antialiased`}>
+        <SecurityCheck />
         <QuickModalProvider>
           {children}
           <AnalyticsProvider />

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { CheckCircle2, Sparkles, Star, X } from "lucide-react"
+import { useReviewsStats } from "@/hooks/use-reviews-stats"
 
 const tabs = [
   { id: "avito", label: "Отзывы с Авито" },
@@ -19,6 +20,9 @@ type Review = {
   avatar?: string
   rating: number
   source: string
+  type: "site" | "avito" | "social"
+  source_url?: string
+  image_url?: string
   createdAt: string
   isVerified: boolean
 }
@@ -32,6 +36,7 @@ const fallbackReviews: Review[] = [
     rating: 5,
     text: "Переезжали из трёшки. Ребята приехали вовремя, всё упаковали и перевезли за 4 часа. Ни одной царапины на мебели. Рекомендую!",
     source: "site",
+    type: "site",
     createdAt: new Date(Date.now() - 14 * 24 * 3600 * 1000).toISOString(),
     isVerified: false,
   },
@@ -43,6 +48,7 @@ const fallbackReviews: Review[] = [
     rating: 5,
     text: "Вызывала грузчиков для подъёма дивана на 7 этаж без лифта. Справились за 20 минут, очень вежливые и аккуратные. Цена как договаривались.",
     source: "site",
+    type: "site",
     createdAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString(),
     isVerified: false,
   },
@@ -54,6 +60,8 @@ const fallbackReviews: Review[] = [
     rating: 5,
     text: "Офисный переезд прошёл идеально. Работали ночью, утром все сотрудники сели за свои рабочие места. Профессионалы!",
     source: "avito",
+    type: "avito",
+    source_url: "https://avito.ru",
     createdAt: new Date(Date.now() - 21 * 24 * 3600 * 1000).toISOString(),
     isVerified: true,
   },
@@ -65,6 +73,8 @@ const fallbackReviews: Review[] = [
     rating: 4,
     text: "Заказывала вывоз строительного мусора после ремонта. Приехали быстро, всё вынесли и увезли. Очень удобный сервис, буду обращаться ещё.",
     source: "social",
+    type: "social",
+    image_url: "https://images.unsplash.com/photo-1555421689-d68471e189f2?w=400&h=400&fit=crop",
     createdAt: new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString(),
     isVerified: true,
   },
@@ -90,6 +100,7 @@ export function Reviews() {
   const PAGE_SIZE = 8
   const sectionRef = useRef<HTMLElement>(null)
   const cardsRef = useRef<HTMLDivElement | null>(null)
+  const { averageRating, totalReviews } = useReviewsStats()
 
   const [activeTab, setActiveTab] = useState<TabId>("avito")
   const [pageByTab, setPageByTab] = useState<Record<TabId, number>>({
@@ -101,6 +112,15 @@ export function Reviews() {
 
   const [modalOpen, setModalOpen] = useState(false)
   const [thanks, setThanks] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (modalOpen) {
+      document.body.classList.add("modal-open")
+    } else {
+      document.body.classList.remove("modal-open")
+    }
+    return () => document.body.classList.remove("modal-open")
+  }, [modalOpen])
 
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
@@ -134,8 +154,11 @@ export function Reviews() {
             text: d.text || "",
             avatar: (d.name?.[0] || "?").toUpperCase(),
             rating: d.rating || 5,
-            source: "site",
-            createdAt: d.created_at,
+            source: d.type || "site",
+            type: d.type || "site",
+            source_url: d.source_url,
+            image_url: d.image_url,
+            createdAt: d.review_date || d.created_at,
             isVerified: true,
           }))
           setReviews((prev) => {
@@ -184,13 +207,6 @@ export function Reviews() {
     return filtered.slice(start, start + PAGE_SIZE)
   }, [filtered, currentPage, PAGE_SIZE])
 
-  const stats = useMemo(() => {
-    const all = reviews
-    const avg =
-      all.length > 0 ? all.reduce((s, r) => s + r.rating, 0) / all.length : 0
-    return { count: all.length, avg }
-  }, [reviews])
-
   useEffect(() => {
     const root = cardsRef.current
     if (!root) return
@@ -213,22 +229,46 @@ export function Reviews() {
   async function submitReview() {
     setThanks(null)
     try {
+      const reviewStatus = rating === 5 ? "approved" : "pending"
       // Save to Supabase
       const { supabase } = await import("@/lib/supabase")
       const { error: dbError } = await supabase.from("reviews").insert([{
         name: name.trim(),
         text: text.trim(),
         rating,
-        status: "pending"
+        status: reviewStatus,
+        type: "site",
       }])
 
       if (dbError) throw new Error(dbError.message)
 
-      // Only add to local UI if we want it immediately visible, but usually we don't for pending
-      // Wait, let's not append to state -> "не виден сразу, появляется после approve"
-      // So we don't `setReviews([newReview, ...prev])`
+      const { sendToTelegram } = await import("@/lib/telegram")
+      const message = `
+📝 Новый отзыв с сайта!
+Имя: ${name.trim()}
+Рейтинг: ${rating}
+Текст: ${text.trim()}
+`
+      await sendToTelegram(message).catch(console.error)
 
-      setThanks("Отзыв отправлен на модерацию!")
+      if (reviewStatus === "approved") {
+        setReviews(prev => [{
+          id: String(Date.now()),
+          name: name.trim(),
+          role: "Клиент",
+          text: text.trim(),
+          avatar: name.trim()?.[0]?.toUpperCase() || "?",
+          rating,
+          source: "site",
+          type: "site",
+          createdAt: new Date().toISOString(),
+          isVerified: true
+        }, ...prev])
+        setThanks("Спасибо за отзыв!")
+      } else {
+        setThanks("Отзыв отправлен на модерацию!")
+      }
+
       setName("")
       setPhone("")
       setText("")
@@ -261,15 +301,15 @@ export function Reviews() {
                     Доверие клиентов
                   </div>
                   <div className="mt-1 text-2xl font-black text-foreground">
-                    ⭐ {stats.avg ? stats.avg.toFixed(1) : "4.9"} / 5
+                    ⭐ {averageRating} / 5
                   </div>
                 </div>
               </div>
               <div className="mt-3 text-sm text-muted-foreground">
-                {stats.count > 0 ? (
+                {totalReviews > 0 ? (
                   <>
                     на основе{" "}
-                    <span className="font-bold text-foreground">{stats.count}</span>{" "}
+                    <span className="font-bold text-foreground">{totalReviews}</span>{" "}
                     отзывов
                   </>
                 ) : (
@@ -337,11 +377,11 @@ export function Reviews() {
                 className="rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:scale-[1.02] hover:border-primary/30"
                 style={{ willChange: "transform" }}
               >
-                {review.source === "social" && review.avatar?.startsWith("http") ? (
+                {review.type === "social" && review.image_url ? (
                   <div className="space-y-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={review.avatar}
+                      src={review.image_url}
                       alt={review.name || "Скрин отзыва"}
                       className="w-full rounded-xl object-cover"
                     />
@@ -391,10 +431,10 @@ export function Reviews() {
                     <p className="text-sm leading-relaxed text-muted-foreground">
                       {review.text}
                     </p>
-                    {review.source === "avito" ? (
+                    {review.type === "avito" && review.source_url ? (
                       <div className="mt-4">
                         <a
-                          href="https://www.avito.ru/profile/rating"
+                          href={review.source_url}
                           target="_blank"
                           rel="noreferrer"
                           className="inline-flex rounded-full border border-primary/50 px-4 py-2 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary/10"
@@ -474,7 +514,8 @@ export function Reviews() {
         {/* Modal */}
         {modalOpen ? (
           <div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-4 md:items-center"
+            className="fixed inset-0 z-50 flex overflow-y-auto items-end justify-center bg-black/70 p-4 md:items-center"
+            style={{ WebkitOverflowScrolling: "touch" }}
             role="dialog"
             aria-modal="true"
             onClick={() => setModalOpen(false)}

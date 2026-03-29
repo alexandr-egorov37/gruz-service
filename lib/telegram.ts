@@ -1,29 +1,27 @@
-const TELEGRAM_BOT_TOKEN = "8172010698:AAGsJRnDQ_8u81R1ErHT60iZW68NKXoYX5Q"
-const TELEGRAM_CHAT_ID = "-1002996461034"
-
+/**
+ * Отправляет сообщение в Telegram через внутренний API роут.
+ * Это предотвращает блокировки (VPN) и задержки загрузки на стороне клиента.
+ */
 export async function sendToTelegram(message: string) {
   try {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`
-    const response = await fetch(url, {
+    const response = await fetch("/api/telegram", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: "HTML",
-      }),
+      body: JSON.stringify({ message }),
     })
 
     if (!response.ok) {
       const errorData = await response.json()
-      throw new Error(errorData.description || "Failed to send message to Telegram")
+      throw new Error(errorData.error || "Failed to send message via API")
     }
 
     return await response.json()
-  } catch (error) {
-    console.error("Telegram error:", error)
-    throw error
+  } catch (error: any) {
+    console.warn("Telegram send failed (graceful):", error.message)
+    // Мы не пробрасываем ошибку дальше, чтобы не ломать UI, 
+    // но логируем её для отладки.
+    return { success: false, error: error.message }
   }
 }

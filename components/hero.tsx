@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Phone, Calculator, ChevronDown } from "lucide-react"
+import { Phone, Calculator, ChevronDown, Send } from "lucide-react"
+import { useReviewsStats } from "@/hooks/use-reviews-stats"
 
 export function Hero() {
+  const { averageRating } = useReviewsStats()
   const sectionRef = useRef<HTMLElement>(null)
 
   const [city, setCity] = useState<"Шуя" | "Иваново">("Шуя")
@@ -37,29 +39,40 @@ export function Hero() {
   }, [isCityOpen])
 
   return (
-    <>
-      <section
-        ref={sectionRef}
-        className="relative min-h-screen overflow-hidden flex items-center pt-24 pb-12"
-      >
-      {/* фон */}
+    <section
+      ref={sectionRef}
+      className="relative min-h-screen overflow-hidden flex items-center pt-24 pb-12"
+    >
+      {/* ФОН И ЗАТЕМНЕНИЕ В 1 СЛОЕ ДЛЯ МОБИЛОК (Упрощенно) */}
       <div
-        className="absolute inset-0 z-0 bg-center bg-no-repeat pointer-events-none"
+        className="absolute inset-0 z-0 pointer-events-none"
         style={{
-          backgroundImage: "url('/images/hero-bg.png')",
+          backgroundImage: "linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/images/hero-bg.png')",
           backgroundSize: "cover",
-          width: "100%",
-          height: "100%",
+          backgroundPosition: "center",
         }}
       />
-
-      {/* затемнение */}
-      <div className="absolute inset-0 bg-black/70 z-[1] pointer-events-none" />
 
       {/* контент */}
       <div className="relative z-10 w-full px-4 py-6 md:px-10">
         <div className="flex items-center justify-center text-center">
           <div className="max-w-[1400px] w-full mx-auto text-center">
+
+            <div className="mb-6 flex justify-center">
+              <a
+                href="https://t.me/gruzrusservis_bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative z-10 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white px-4 py-2 text-black hover:opacity-90 transition-all duration-300"
+              >
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-black text-white shrink-0">
+                  <Send size={12} className="-ml-0.5" />
+                </div>
+                <span className="text-sm sm:text-base font-bold leading-none tracking-tight">
+                  Telegram bot
+                </span>
+              </a>
+            </div>
 
             <div className="mb-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <div className="flex items-center gap-3">
@@ -69,12 +82,12 @@ export function Hero() {
                 </span>
               </div>
 
-              <div ref={cityRef} className="relative">
+              <div ref={cityRef} className="relative z-20">
                 <button
                   type="button"
                   onClick={() => setIsCityOpen((v) => !v)}
                   className="
-                    flex items-center gap-2 rounded-xl border border-border
+                    relative z-10 flex items-center gap-2 rounded-xl border border-border
                     bg-background/30 px-3 py-1.5 text-sm sm:text-base font-semibold text-foreground
                   "
                   aria-haspopup="listbox"
@@ -89,7 +102,7 @@ export function Hero() {
                   />
                 </button>
 
-                {isCityOpen ? (
+                {isCityOpen && (
                   <div
                     className="
                       absolute left-1/2 -translate-x-1/2 md:left-0 md:translate-x-0 top-full z-[1200] mt-2 w-44
@@ -107,7 +120,7 @@ export function Hero() {
                           setCity(c)
                           setIsCityOpen(false)
                         }}
-                        className={`w-full px-4 py-3 text-left text-base font-semibold transition hover:bg-white/5 ${
+                        className={`w-full px-4 py-3 text-left text-base font-semibold transition hover:bg-white/5 relative z-10 ${
                           c === city ? "text-black bg-[#fbbf24]" : "text-foreground"
                         }`}
                       >
@@ -115,7 +128,7 @@ export function Hero() {
                       </button>
                     ))}
                   </div>
-                ) : null}
+                )}
               </div>
             </div>
 
@@ -135,7 +148,7 @@ export function Hero() {
             <div className="mt-10 flex flex-col sm:flex-row justify-center gap-4 sm:gap-6">
               <button
                 type="button"
-                className="group relative z-20 flex w-full sm:w-auto items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-base sm:text-lg md:text-xl font-bold text-primary-foreground transition-all duration-300 hover:scale-105 hover:shadow-2xl active:scale-95"
+                className="group relative z-10 flex w-full sm:w-auto items-center justify-center gap-3 rounded-2xl bg-primary px-8 py-4 text-base sm:text-lg md:text-xl font-bold text-primary-foreground transition-all duration-300 hover:scale-105 active:scale-95"
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
@@ -149,7 +162,7 @@ export function Hero() {
 
               <a
                 href="tel:+79203507778"
-                className="relative z-20 flex w-full sm:w-auto items-center justify-center gap-3 rounded-2xl border border-border bg-secondary px-8 py-4 text-base sm:text-lg md:text-xl font-bold text-foreground transition-all duration-300 hover:scale-105 hover:shadow-xl"
+                className="relative z-10 flex w-full sm:w-auto items-center justify-center gap-3 rounded-2xl border border-border bg-secondary px-8 py-4 text-base sm:text-lg md:text-xl font-bold text-foreground transition-all duration-300 hover:scale-105"
               >
                 <Phone className="h-6 w-6" />
                 Позвонить
@@ -161,7 +174,7 @@ export function Hero() {
               {[
                 { value: "500+", label: "Заказов" },
                 { value: "30 мин", label: "Подача" },
-                { value: "4.9", label: "Рейтинг" },
+                { value: averageRating, label: "Рейтинг" },
               ].map((stat, i) => (
                 <div key={stat.label} className={`flex flex-col ${i === 2 ? 'col-span-2 sm:col-span-1' : ''}`}>
                   <span className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-primary">
@@ -177,7 +190,6 @@ export function Hero() {
           </div>
         </div>
       </div>
-      </section>
-    </>
+    </section>
   )
 }

@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Removed output: 'export' to support /api routes on Vercel
   images: {
     unoptimized: true,
   },

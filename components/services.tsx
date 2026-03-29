@@ -120,22 +120,14 @@ export function Services() {
       ref={sectionRef}
       className="relative py-20 overflow-hidden"
     >
-      {/* ФОН */}
+      {/* ФОН И ЗАТЕМНЕНИЕ В 1 СЛОЕ */}
       <div
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/images/hero-bg-2.png')" }}
-      />
-
-      {/* ЗАТЕМНЕНИЕ */}
-      <div
-        className="absolute inset-0 z-10 bg-black/70 pointer-events-none"
-        aria-hidden
-      />
-
-      {/* ЛЁГКИЙ ГРАДИЕНТ */}
-      <div
-        className="absolute inset-0 z-10 bg-gradient-to-b from-black/80 via-black/70 to-black/90 pointer-events-none"
-        aria-hidden
+        className="absolute inset-0 z-0 pointer-events-none"
+        style={{ 
+          backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.8), rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('/images/hero-bg-2.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center"
+        }}
       />
 
       {/* КОНТЕНТ */}
@@ -174,7 +166,7 @@ export function Services() {
                 <button
                   type="button"
                   onClick={() => openQuickModal()}
-                  className="mt-6 inline-flex w-fit items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-bold text-primary-foreground transition duration-300 hover:scale-105 hover:shadow-xl hover:border-primary active:scale-100"
+                  className="relative z-10 mt-6 inline-flex w-fit items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-bold text-primary-foreground transition duration-300 hover:scale-105 hover:shadow-xl hover:border-primary active:scale-100"
                 >
                   Заказать
                 </button>
@@ -196,7 +188,7 @@ export function Services() {
               <button
                 type="button"
                 onClick={() => openQuickModal()}
-                className="mt-6 inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-bold text-primary-foreground transition duration-300 hover:scale-105 hover:shadow-xl hover:border-primary active:scale-100 sm:w-auto"
+                className="relative z-10 mt-6 inline-flex w-full items-center justify-center rounded-full bg-primary px-6 py-3 text-base font-bold text-primary-foreground transition duration-300 hover:scale-105 hover:shadow-xl hover:border-primary active:scale-100 sm:w-auto"
               >
                 Оставить заявку
               </button>

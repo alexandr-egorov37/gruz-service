@@ -49,19 +49,14 @@ export function RequestForm() {
       ref={sectionRef}
       className="relative py-28 overflow-hidden"
     >
-      {/* ФОН */}
+      {/* ФОН И ЗАТЕМНЕНИЕ В 1 СЛОЕ */}
       <div
-        className="absolute inset-0 z-0 bg-cover bg-no-repeat"
+        className="absolute inset-0 z-0 pointer-events-none"
         style={{
-          backgroundImage: "url('/images/hero-bg-4.png')",
+          backgroundImage: "linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.8), rgba(0,0,0,0.95)), url('/images/hero-bg-4.png')",
+          backgroundSize: "cover",
           backgroundPosition: "center 15%",
         }}
-      />
-
-      {/* ТЁМНЫЙ OVERLAY */}
-      <div
-        className="absolute inset-0 z-10 bg-gradient-to-b from-black/90 via-black/80 to-black/95 pointer-events-none"
-        aria-hidden
       />
 
       <div className="relative z-20 mx-auto max-w-7xl px-4 lg:px-8 flex justify-center">
@@ -165,7 +160,7 @@ export function RequestForm() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-bold text-primary-foreground transition-all hover:brightness-110 active:scale-[0.98]"
+                  className="relative z-10 flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-4 text-base font-bold text-primary-foreground transition-all hover:brightness-110 active:scale-[0.98]"
                 >
                   <Send className="h-5 w-5" />
                   {submitting ? "Отправляем..." : "Вызвать грузчиков"}
