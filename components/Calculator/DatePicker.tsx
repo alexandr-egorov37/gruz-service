@@ -132,7 +132,7 @@ export function DatePicker({
         {open ? (
           <div
             className="
-              absolute left-0 top-full z-50 mt-2
+              absolute left-0 top-full z-[9999] mt-2
               animate-in fade-in slide-in-from-bottom-4 duration-300
             "
           >

@@ -115,25 +115,43 @@ export function Reviews() {
   }, [])
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem("reviews")
-      if (!raw) return
-      const parsed = JSON.parse(raw) as Review[]
-      if (Array.isArray(parsed) && parsed.length > 0) setReviews(parsed)
-    } catch {
-      // ignore
+    const fetchReviews = async () => {
+      try {
+        const { supabase } = await import("@/lib/supabase")
+        const { data, error } = await supabase
+          .from("reviews")
+          .select("*")
+          .eq("status", "approved")
+          .order("created_at", { ascending: false })
+
+        if (error) throw error
+
+        if (data && Array.isArray(data) && data.length > 0) {
+          const formatted = data.map((d) => ({
+            id: d.id,
+            name: d.name || "Аноним",
+            role: "Клиент",
+            text: d.text || "",
+            avatar: (d.name?.[0] || "?").toUpperCase(),
+            rating: d.rating || 5,
+            source: "site",
+            createdAt: d.created_at,
+            isVerified: true,
+          }))
+          setReviews((prev) => {
+            // Merge with fallback or replace entirely
+            // We'll just replace entirely with db data, 
+            // but if there are fewer than 2 we can keep fallback
+            return formatted.length > 0 ? formatted : prev
+          })
+        }
+      } catch (e) {
+        console.error("Ошибка загрузки отзывов", e)
+      }
     }
+
+    fetchReviews()
   }, [])
-
-  // API fetching removed for static compatibility
-
-  useEffect(() => {
-    try {
-      localStorage.setItem("reviews", JSON.stringify(reviews))
-    } catch {
-      // ignore
-    }
-  }, [reviews])
 
   const filtered = useMemo(() => {
     return reviews.filter((r) => {
@@ -195,16 +213,22 @@ export function Reviews() {
   async function submitReview() {
     setThanks(null)
     try {
-      const { sendToTelegram } = await import("@/lib/telegram")
-      const message = `
-<b>📝 Новый отзыв с сайта!</b>
-<b>Имя:</b> ${name.trim()}
-<b>Рейтинг:</b> ${rating}
-<b>Текст:</b> ${text.trim()}
-`
-      await sendToTelegram(message)
+      // Save to Supabase
+      const { supabase } = await import("@/lib/supabase")
+      const { error: dbError } = await supabase.from("reviews").insert([{
+        name: name.trim(),
+        text: text.trim(),
+        rating,
+        status: "pending"
+      }])
 
-      setThanks("Спасибо за отзыв!")
+      if (dbError) throw new Error(dbError.message)
+
+      // Only add to local UI if we want it immediately visible, but usually we don't for pending
+      // Wait, let's not append to state -> "не виден сразу, появляется после approve"
+      // So we don't `setReviews([newReview, ...prev])`
+
+      setThanks("Отзыв отправлен на модерацию!")
       setName("")
       setPhone("")
       setText("")
@@ -213,7 +237,7 @@ export function Reviews() {
       setTimeout(() => {
         setModalOpen(false)
         setThanks(null)
-      }, 1500)
+      }, 2000)
     } catch (e) {
       setThanks(e instanceof Error ? e.message : "Ошибка отправки")
     }

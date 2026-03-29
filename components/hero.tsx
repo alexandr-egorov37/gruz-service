@@ -47,7 +47,9 @@ export function Hero() {
         className="absolute inset-0 z-0 bg-center bg-no-repeat pointer-events-none"
         style={{
           backgroundImage: "url('/images/hero-bg.png')",
-          backgroundSize: "100% 100%",
+          backgroundSize: "cover",
+          width: "100%",
+          height: "100%",
         }}
       />
 
@@ -57,7 +59,7 @@ export function Hero() {
       {/* контент */}
       <div className="relative z-10 w-full px-4 py-6 md:px-10">
         <div className="flex items-center justify-center text-center">
-          <div className="max-w-[900px] mx-auto text-center">
+          <div className="max-w-[1400px] w-full mx-auto text-center">
 
             <div className="mb-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
               <div className="flex items-center gap-3">
@@ -117,7 +119,7 @@ export function Hero() {
               </div>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-72px lg:text-88px xl:text-96px font-bold leading-[1.1] tracking-tight text-center">
+            <h1 className="text-[28px] sm:text-[34px] md:text-[40px] lg:text-[56px] font-bold leading-[1.1] tracking-tight text-center mx-auto w-full">
               <span className="block sm:whitespace-nowrap">
                 Грузчики за <span className="text-primary">30 минут</span>
               </span>

@@ -1,0 +1,3 @@
+module.exports=[98018,a=>{"use strict";async function b(a){try{let b=await fetch("https://api.telegram.org/bot8172010698:AAGsJRnDQ_8u81R1ErHT60iZW68NKXoYX5Q/sendMessage",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({chat_id:"-1002996461034",text:a,parse_mode:"HTML"})});if(!b.ok){let a=await b.json();throw Error(a.description||"Failed to send message to Telegram")}return await b.json()}catch(a){throw console.error("Telegram error:",a),a}}a.s(["sendToTelegram",0,b])}];
+
+//# sourceMappingURL=lib_telegram_ts_08_aazn._.js.map

@@ -69,8 +69,8 @@ export function Header() {
           </a>
           <button
             type="button"
-            onClick={() => {}}
-            className="rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground transition duration-300 hover:scale-105 hover:shadow-xl hover:border-primary active:scale-95"
+            onClick={() => openQuickModal()}
+            className="rounded-xl bg-primary px-6 py-3 text-base font-semibold text-primary-foreground transition duration-300 hover:scale-105 hover:shadow-xl hover:border-primary active:scale-95 cursor-pointer relative z-20"
           >
             Оставить заявку
           </button>

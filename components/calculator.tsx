@@ -34,7 +34,7 @@ export function CalculatorSection() {
     <section
       id="calculator"
       ref={sectionRef}
-      className="relative py-24 overflow-hidden scroll-mt-28"
+      className="relative py-24 overflow-visible scroll-mt-28"
     >
       {/* ФОНОВАЯ КАРТИНКА */}
       <div

@@ -179,8 +179,8 @@ export function Calculator() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-5xl overflow-visible rounded-3xl border border-border bg-card">
-        <form onSubmit={onSubmit} className="p-6 lg:p-8">
+      <div className="mx-auto max-w-5xl overflow-visible rounded-3xl border border-border bg-card relative z-10">
+        <form onSubmit={onSubmit} className="p-6 lg:p-8 relative z-10">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="lg:col-span-1">
               <Select
